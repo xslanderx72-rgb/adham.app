@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevilXit WIRE - System</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  body { background-color: #06090e; color: #fff; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 20px 10px; }
+  .container { width: 100%; max-width: 450px; }
+
+  .card { background: #0c1017; border: 1px solid #1a2332; border-radius: 16px; padding: 25px; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.5); margin-bottom: 15px; }
+  h2 { color: #00b0ff; margin-bottom: 20px; font-weight: 800; letter-spacing: 1px; }
+  .btn-blue { width: 100%; padding: 12px; background: linear-gradient(90deg, #0088ff, #00c6ff); border: none; border-radius: 8px; color: #fff; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; margin-top: 8px; }
+  .btn-blue:hover { opacity: 0.9; }
+  .btn-outline { width: 100%; padding: 12px; background: transparent; border: 2px solid #0088ff; border-radius: 8px; color: #0088ff; font-weight: bold; font-size: 15px; cursor: pointer; margin-bottom: 10px; }
+  input, select { width: 100%; padding: 12px; margin-bottom: 12px; background: #06090e; border: 1px solid #1a2332; border-radius: 8px; color: #fff; font-size: 14px; text-align: center; outline: none; }
+  input:focus, select:focus { border-color: #0088ff; }
+
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .stat-box { background: #0c1017; border: 1px solid #1a2332; border-radius: 12px; padding: 15px; text-align: center; }
+  .stat-val { font-size: 22px; font-weight: 900; color: #fff; }
+  .stat-lbl { font-size: 11px; color: #6c7a89; font-weight: bold; margin-top: 4px; text-transform: uppercase; }
+
+  .sec-box { background: #0c1017; border: 1px solid #1a2332; border-radius: 12px; margin-bottom: 14px; overflow: hidden; }
+  .sec-header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #0e141f; }
+  .sec-title { font-size: 13px; font-weight: 800; color: #00b0ff; }
+  .sec-body { padding: 16px; display: none; border-top: 1px solid #1a2332; }
+  .sec-body.active { display: block; }
+
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #1a2332; font-size: 13px; }
+  .res-code { font-weight: bold; color: #fff; }
+  .res-bal { color: #00e676; font-weight: bold; }
+  .btn-danger { background: #ff334b; border: none; padding: 6px 12px; border-radius: 6px; color: #fff; font-weight: bold; cursor: pointer; }
+  .key-item { background: #06090e; border: 1px solid #1a2332; padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- واجهة الاختيار والـ Login الرئيسية -->
+  <div id="homePage" class="card">
+    <h2>DevilXit WIRE</h2>
+    
+    <!-- زر دخول الأدمن -->
+    <button class="btn-outline" onclick="document.getElementById('adminBox').style.display='block'; document.getElementById('resBox').style.display='none';">Admin Access</button>
+    <div id="adminBox" style="display:none; margin-bottom: 15px;">
+      <input type="password" id="adminPass" placeholder="أدخل كلمة مرور الأدمن">
+      <button class="btn-blue" onclick="loginAdmin()">تسجيل دخول الأدمن</button>
+    </div>
+
+    <!-- زر دخول الموزعين Reseller Access -->
+    <button class="btn-outline" style="border-color: #00e676; color: #00e676;" onclick="document.getElementById('resBox').style.display='block'; document.getElementById('adminBox').style.display='none';">Reseller Access</button>
+    <div id="resBox" style="display:none; margin-bottom: 10px;">
+      <input type="text" id="resInputCode" placeholder="أدخل كود الموزع الخاص بك">
+      <button class="btn-blue" style="background: linear-gradient(90deg, #00e676, #00b0ff);" onclick="loginReseller()">دخول لوحة البائع</button>
+    </div>
+
+    <div id="msg" style="margin-top:10px; font-size:13px; font-weight:bold; color:#ff334b;"></div>
+  </div>
+
+  <!-- لوحة تحكم الأدمن (Admin Dashboard) -->
+  <div id="adminDash" style="display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <button class="btn-outline" style="width: auto; padding: 6px 14px; font-size: 12px;" onclick="location.reload()">LOGOUT</button>
+      <div style="font-weight: 900; color: #00b0ff;">ADMIN PANEL</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-val" id="admTotalKeys">0</div><div class="stat-lbl">TOTAL KEYS</div></div>
+      <div class="stat-box"><div class="stat-val" id="admTotalRes">0</div><div class="stat-lbl">RESELLERS</div></div>
+      <div class="stat-box"><div class="stat-val" id="admPrice">1.00</div><div class="stat-lbl">PRICE</div></div>
+      <div class="stat-box"><div class="stat-val" id="admBalance">∞</div><div class="stat-lbl">ADMIN BALANCE</div></div>
+    </div>
+
+    <!-- قسم صناعة المفاتيح للأدمن (بدون خصم رصيد) -->
+    <div class="sec-box">
+      <div class="sec-header" onclick="toggleSec('secAdminKeys')">
+        <span class="sec-title">🔑 صانع المفاتيح (مجاني للأدمن)</span>
+        <span>❯</span>
+      </div>
+      <div id="secAdminKeys" class="sec-body active">
+        <select id="admKeyDuration">
+          <option value="1">ساعة واحدة (1 Hour)</option>
+          <option value="24">يوم واحد (1 Day)</option>
+          <option value="168">أسبوع (7 Days)</option>
+          <option value="720">شهر (30 Days)</option>
+        </select>
+        <button class="btn-blue" onclick="adminGenerateKey()">إنشاء مفتاح جديد 🚀</button>
+      </div>
+    </div>
+
+    <!-- تعديل السعر -->
+    <div class="sec-box">
+      <div class="sec-header" onclick="toggleSec('secAdmPrice')">
+        <span class="sec-title">🏷️ KEY PRICE</span>
+        <span>❯</span>
+      </div>
+      <div id="secAdmPrice" class="sec-body">
+        <input type="number" id="newPriceInput" value="1.00" step="0.1">
+        <button class="btn-blue" onclick="updatePrice()">UPDATE PRICE 💾</button>
+      </div>
+    </div>
+
+    <!-- إضافة موزع جديد -->
+    <div class="sec-box">
+      <div class="sec-header" onclick="toggleSec('secAddRes')">
+        <span class="sec-title">👤 ADD RESELLER</span>
+        <span>❯</span>
+      </div>
+      <div id="secAddRes" class="sec-body">
+        <input type="text" id="resCode" placeholder="Reseller code">
+        <input type="number" id="resInitBal" placeholder="الرصيد المبدئي" value="10">
+        <button class="btn-blue" onclick="addReseller()">ADD RESELLER ➕</button>
+      </div>
+    </div>
+
+    <!-- قائمة الموزعين -->
+    <div class="sec-box">
+      <div class="sec-header" onclick="toggleSec('secResList')">
+        <span class="sec-title">👥 RESELLERS LIST</span>
+        <span>❯</span>
+      </div>
+      <div id="secResList" class="sec-body active">
+        <div id="resellersListContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- لوحة تحكم الموزع (Reseller Dashboard) -->
+  <div id="resDash" style="display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <button class="btn-outline" style="width: auto; padding: 6px 14px; font-size: 12px;" onclick="location.reload()">LOGOUT</button>
+      <div style="font-weight: 900; color: #00e676;" id="resDashTitle">RESELLER PANEL</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-val" id="resMyBal">0.00</div><div class="stat-lbl">MY BALANCE ($)</div></div>
+      <div class="stat-box"><div class="stat-val" id="resKeyCost">1.00</div><div class="stat-lbl">KEY COST</div></div>
+    </div>
+
+    <!-- إضافة وإنشاء كود للموزع (يخصم من رصيده) -->
+    <div class="card" style="text-align: left; padding: 20px;">
+      <h3 style="color: #00e676; font-size: 15px; margin-bottom: 15px;">➕ إنشاء كود جديد</h3>
+      <label style="font-size: 12px; color: #6c7a89;">اختر مدة المفتاح:</label>
+      <select id="resKeyDuration" style="margin-top: 6px;">
+        <option value="1">ساعة واحدة (1 Hour)</option> مفتاح بـ سعر السيرفر
+        <option value="24">يوم واحد (1 Day)</option>
+        <option value="168">أسبوع (7 Days)</option>
+        <option value="720">شهر (30 Days)</option>
+      </select>
+      <button class="btn-blue" style="background: linear-gradient(90deg, #00e676, #00b0ff);" onclick="resellerGenerateKey()">توليد الكود وإنشاؤه 🔑</button>
+    </div>
+
+    <!-- قائمة الأكواد التي أنشأها الموزع -->
+    <div class="sec-box">
+      <div class="sec-header" onclick="toggleSec('secMyKeys')">
+        <span class="sec-title">📦 أكوادي المُنشأة</span>
+        <span>❯</span>
+      </div>
+      <div id="secMyKeys" class="sec-body active">
+        <div id="myKeysContainer"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+  const app = initializeApp(firebaseConfig);
+
+  // قاعدة بيانات وهمية للتجربة والربط
+  let currentPrice = 1.00;
+  let resellers = [
+    { code: "DINOX5040", bal: 50.00, keysCreated: 0 },
+    { code: "Dev Team", bal: 25.00, keysCreated: 0 }
+  ];
+  let allKeys = []; // تخزين المفاتيح المُولدة
+  let activeResellerIndex = null;
+
+  // تسجيل دخول الأدمن
+  window.loginAdmin = function() {
+    const pass = document.getElementById('adminPass').value.trim();
+    if (pass === "ADHAM XIT RES") {
+      document.getElementById('homePage').style.display = 'none';
+      document.getElementById('adminDash').style.display = 'block';
+      renderAdmin();
+    } else {
+      document.getElementById('msg').innerText = "كلمة مرور الأدمن غير صحيحة!";
+    }
+  };
+
+  // تسجيل دخول الموزع
+  window.loginReseller = function() {
+    const code = document.getElementById('resInputCode').value.trim();
+    const foundIdx = resellers.findIndex(r => r.code === code);
+    if (foundIdx !== -1) {
+      activeResellerIndex = foundIdx;
+      document.getElementById('homePage').style.display = 'none';
+      document.getElementById('resDash').style.display = 'block';
+      document.getElementById('resDashTitle').innerText = `RESELLER: ${resellers[foundIdx].code}`;
+      renderReseller();
+    } else {
+      document.getElementById('msg').innerText = "كود الموزع غير موجود!";
+    }
+  };
+
+  window.toggleSec = function(id) {
+    document.getElementById(id).classList.toggle('active');
+  };
+
+  // وظائف الأدمن (بدون خصم رصيد)
+  window.updatePrice = function() {
+    const val = parseFloat(document.getElementById('newPriceInput').value);
+    if(val > 0) {
+      currentPrice = val;
+      renderAdmin();
+      alert("تم تحديث السعر بنجاح!");
+    }
+  };
+
+  window.addReseller = function() {
+    const code = document.getElementById('resCode').value.trim();
+    const bal = parseFloat(document.getElementById('resInitBal').value) || 0;
+    if(code) {
+      resellers.push({ code, bal, keysCreated: 0 });
+      document.getElementById('resCode').value = '';
+      renderAdmin();
+      alert("تمت إضافة الموزع بنجاح!");
+    }
+  };
+
+  window.deleteReseller = function(idx) {
+    if(confirm("هل أنت متأكد من حذف هذا الموزع؟")) {
+      resellers.splice(idx, 1);
+      renderAdmin();
+    }
+  };
+
+  window.adminGenerateKey = function() {
+    const duration = document.getElementById('admKeyDuration').value;
+    const randomKey = "DEVIL-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+    allKeys.push({ key: randomKey, duration: duration + " Hours", owner: "ADMIN (Free)" });
+    alert("تم إنشاء المفتاح بنجاح (بدون خصم رصيد للأدمن): " + randomKey);
+    renderAdmin();
+  };
+
+  // وظائف الموزع (يتم خصم السعر من رصيده تلقائياً)
+  window.resellerGenerateKey = function() {
+    let res = resellers[activeResellerIndex];
+    if (res.bal < currentPrice) {
+      alert("عذراً، رصيدك غير كافٍ لإنشاء مفتاح! يرجى التواصل مع الأدمن لشحن رصيدك.");
+      return;
+    }
+
+    // خصم الرصيد
+    res.bal -= currentPrice;
+    res.keysCreated += 1;
+
+    const duration = document.getElementById('resKeyDuration').value;
+    const randomKey = "RES-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+    allKeys.push({ key: randomKey, duration: duration + " Hours", owner: res.code });
+
+    alert(`تم إنشاء الكود بنجاح وتم خصم $${currentPrice.toFixed(2)} من رصيدك!\nالكود: ${randomKey}`);
+    renderReseller();
+  };
+
+  function renderAdmin() {
+    document.getElementById('admTotalKeys').innerText = allKeys.length;
+    document.getElementById('admTotalRes').innerText = resellers.length;
+    document.getElementById('admPrice').innerText = currentPrice.toFixed(2);
+
+    let listHtml = '';
+    resellers.forEach((r, i) => {
+      listHtml += `
+        <div class="res-row">
+          <button class="btn-danger" onclick="deleteReseller(${i})">🗑️ حذف</button>
+          <div>Keys: <b>${r.keysCreated}</b></div>
+          <div class="res-bal">$${r.bal.toFixed(2)}</div>
+          <div class="res-code">${r.code}</div>
+        </div>
+      `;
+    });
+    document.getElementById('resellersListContainer').innerHTML = listHtml || '<div style="text-align:center; color:#6c7a89;">لا توجد موزعين</div>';
+  }
+
+  function renderReseller() {
+    let res = resellers[activeResellerIndex];
+    document.getElementById('resMyBal').innerText = res.bal.toFixed(2);
+    document.getElementById('resKeyCost').innerText = currentPrice.toFixed(2);
+
+    let myKeysHtml = '';
+    allKeys.filter(k => k.owner === res.code).forEach(k => {
+      myKeysHtml += `
+        <div class="key-item">
+          <div>🔑 <b>${k.key}</b> <span style="color:#6c7a89; font-size:11px;">(${k.duration})</span></div>
+          <button class="btn-outline" style="width:auto; padding:4px 8px; font-size:11px; margin:0;" onclick="navigator.clipboard.writeText('${k.key}'); alert('تم التنسيق والنسخ!');">نسخ</button>
+        </div>
+      `;
+    });
+    document.getElementById('myKeysContainer').innerHTML = myKeysHtml || '<div style="text-align:center; color:#6c7a89;">لم تقم بإنشاء أي أكواد بعد</div>';
+  }
+</script>
+
+</body>
+</html>
